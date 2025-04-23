@@ -1,0 +1,75 @@
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
+from selenium.webdriver import ActionChains
+from time import sleep
+
+servico = Service(ChromeDriverManager().install())
+navegador = webdriver.Chrome(service=servico)
+navegador.get("file:///C:/Users/andre.franca/Downloads/formulario_TESTE/1000/index.html")
+
+def preencher_form(usuario):
+
+    navegador.find_element(By.ID, "username").clear()
+    navegador.find_element(By.ID, "username").send_keys(usuario)
+
+def clicar_botao():
+    botao = navegador.find_element(By.XPATH, "/html/body/main/form/button[1]")
+    ActionChains(navegador).click(botao).perform()
+    sleep(2)
+
+def formulario_foi_enviado():
+    campo_nome = navegador.find_element(By.ID, "username")
+    clicar_botao()
+    sleep(1)
+    try:
+        campo_nome.get_attribute("value")
+        return False 
+    except:
+        return True
+contador = 50;
+for i in range(contador):
+    # Teste 1: usuario em branco
+    preencher_form("")
+    if formulario_foi_enviado() == True:
+        print("Campo nome em branco enviando formulario")
+    else:
+        print("Teste nome em branco ok")
+    sleep(1)
+        
+    # Teste 2: nome com mais de 20 caracteres
+    preencher_form("noobmaster69521452365477828987433")
+    valor_nome = navegador.find_element(By.ID, "username").get_attribute("value")
+    if len(valor_nome) <= 30:
+        print("Apenas 30 caracteres foram digitados em Nome")
+    else:
+        print("Erro: campo 'user' aceitou mais de 30 caracteres" + str(({len(valor_nome)})))
+    sleep(1)
+    
+    #teste 3: menos de 5 caracters
+    preencher_form("noob")
+    valor_nome = navegador.find_element(By.ID, "username").get_attribute("value")
+    if len(valor_nome) <= 5:
+        print("Menos de 5 caracteres foram digitados em User")
+    else:
+        print("Erro: campo 'user' aceitou menos de 5 caracteres" + str(({len(valor_nome)})))
+    sleep(1)
+    
+    # Teste 3: usuário com pontuação
+    preencher_form("noobplayer39!")
+    if formulario_foi_enviado() == True:
+        print("Formulario aceitando pontuação")
+    else:
+        print("Teste pontuação ok")
+    sleep(1)
+    
+    #teste certo
+    preencher_form("noobplayer39")
+    if formulario_foi_enviado() == True:
+        print("Teste ok")
+    else:
+        print("Formulario não enviado")
+    sleep(3)
+    
+navegador.quit()
